@@ -5,7 +5,7 @@ lai gan čūska redz tikai nelielu apli ap galvu. Spēlētājs izpēta tumšo ka
 izmanto power-up, lai uz laiku redzētu vairāk, un sacenšas ar citiem globālajā
 rezultātu tabulā.
 
-**VADĪBA** - ↑ ↓ ← → | Čūskas virziens, SPACE | Jauna spēle pēc Game Over, ESC | Iziet
+**VADĪBA** - Bultinas = Čūskas virziens, SPACE = jauna spēle pēc Game Over, ESC = Iziet
 Čūska nevar apgriezties par 180° (uzreiz pretējā virzienā).
 
 **PAMATA CIKLS** -
