@@ -34,7 +34,7 @@ def new_game():
 def visible(cell, head):
     dx = cell[0] - head[0]
     dy = cell[1] - head[1]
-    return dx * dx + dy * dy <= VISION * VISION
+    return dx * dx + dy * dy <= VISION * VISION + 0.01
 def draw_cell(cell, color):
     pygame.draw.rect(screen, color, (cell[0] * CELL, cell[1] * CELL, CELL - 1, CELL - 1))
 
@@ -89,8 +89,7 @@ while running:
 
     for i, cell in enumerate(snake):
         old = prev[i] if i < len(prev) else prev[-1]
-        if visible(cell, (hx, hy)):
-            draw_smooth(cell, old, t, SNAKE_COLOR)
+        draw_smooth(cell, old, t, SNAKE_COLOR)
     if visible(game["food"], (hx, hy)):
         draw_cell(game["food"], FOOD_COLOR)
 
