@@ -42,6 +42,14 @@ while running:
             dx, dy = game["dir"]
             if event.key == pygame.K_UP and dy == 0:
                 game["dir"] = (0, -1)
+            elif event.key == pygame.K_DOWN and dy == 0:
+                game["dir"] = (0, 1)
+            elif event.key == pygame.K_LEFT and dx == 0:
+                game["dir"] = (-1, 0)
+            elif event.key == pygame.K_RIGHT and dx == 0:
+                game["dir"] = (1, 0)
+            elif event.key == pygame.K_SPACE and not game["alive"]:
+                game = new_game()
     if game['alive']:
         head = game["snake"][0]
         new_head = (head[0] + game["dir"][0], head[1] + game["dir"][1])
