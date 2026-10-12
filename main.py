@@ -3,12 +3,18 @@ import pygame
 
 CELL = 20
 COLS, ROWS = 32, 24
-WIDTH, HEIGHT = COLS * CELL, ROWS * CELL
+HUD_HEIGHT = 40
+WIDTH = COLS * CELL
+HEIGHT = ROWS * CELL + HUD_HEIGHT
 VISION = 4
 FPS = 60
 SPEED = 3
 SNAKE_COLOR = "#50C878"
 FOOD_COLOR = "#DC3C3C"
+BG_COLOR = "#0B0F14"
+HUD_COLOR = "#2D333B"
+BORDER_COLOR = "#6E7681"
+OUTSIDE_COLOR = "#000000" 
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -36,11 +42,11 @@ def visible(cell, head):
     dy = cell[1] - head[1]
     return dx * dx + dy * dy <= VISION * VISION + 0.01
 def draw_cell(cell, color):
-    pygame.draw.rect(screen, color, (cell[0] * CELL, cell[1] * CELL, CELL - 1, CELL - 1))
+    pygame.draw.rect(screen, color, (cell[0] * CELL, cell[1] * CELL + HUD_HEIGHT, CELL - 1, CELL - 1))
 
 def draw_smooth(cur, prev, t, color):
     x = (prev[0] + (cur[0] - prev[0]) * t) * CELL
-    y = (prev[1] + (cur[1] - prev[1]) * t) * CELL
+    y = (prev[1] + (cur[1] - prev[1]) * t) * CELL + HUD_HEIGHT
     pygame.draw.rect(screen, color, (x, y, CELL - 1, CELL - 1))
     
 game = new_game()
@@ -79,7 +85,8 @@ while running:
                     game["food"] = random_cell(game["snake"])
                 else:
                     game["snake"].pop()
-    screen.fill((0, 0, 0))
+    screen.fill(HUD_COLOR)
+    pygame.draw.rect(screen, BG_COLOR, (0, HUD_HEIGHT, WIDTH, ROWS * CELL))
 
     t = game["progress"] / CELL if game["alive"] else 0
     snake = game["snake"]
@@ -92,8 +99,10 @@ while running:
         draw_smooth(cell, old, t, SNAKE_COLOR)
     if visible(game["food"], (hx, hy)):
         draw_cell(game["food"], FOOD_COLOR)
-
-    screen.blit(font.render(f'Score: {game["score"]}', True, (255, 255, 255)), (10, 10))
+    score_text = font.render(f'Score: {game["score"]}', True, (255, 255, 255))
+    x = (WIDTH - score_text.get_width()) // 2
+    y = (HUD_HEIGHT - score_text.get_height()) // 2
+    screen.blit(score_text, (x, y))
 
     if not game["alive"]:
         msg = font.render("Game over - SPACE lai sāktu no jauna", True, (255, 255, 255))
