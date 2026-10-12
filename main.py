@@ -6,7 +6,7 @@ COLS, ROWS = 32, 24
 WIDTH, HEIGHT = COLS * CELL, ROWS * CELL
 VISION = 4
 FPS = 60
-SPEED = 4
+SPEED = 3
 SNAKE_COLOR = "#50C878"
 FOOD_COLOR = "#DC3C3C"
 
@@ -80,12 +80,18 @@ while running:
                 else:
                     game["snake"].pop()
     screen.fill((0, 0, 0))
-    head = game["snake"][0]
 
-    for cell in game["snake"]:
-        if visible(cell, head):
-            draw_cell(cell, SNAKE_COLOR)
-    if visible(game["food"], head):
+    t = game["progress"] / CELL if game["alive"] else 0
+    snake = game["snake"]
+    prev = game["prev"]
+    hx = prev[0][0] + (snake[0][0] - prev[0][0]) * t
+    hy = prev[0][1] + (snake[0][1] - prev[0][1]) * t
+
+    for i, cell in enumerate(snake):
+        old = prev[i] if i < len(prev) else prev[-1]
+        if visible(cell, (hx, hy)):
+            draw_smooth(cell, old, t, SNAKE_COLOR)
+    if visible(game["food"], (hx, hy)):
         draw_cell(game["food"], FOOD_COLOR)
 
     screen.blit(font.render(f'Score: {game["score"]}', True, (255, 255, 255)), (10, 10))
