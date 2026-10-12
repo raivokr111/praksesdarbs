@@ -1,11 +1,10 @@
 **NOSAUKUMS** - Blind Snake, Snake
 
-**MĒRĶIS** - Iegūt pēc iespējas vairāk punktu, ēdot ēdienu un izvairoties no sadursmēm,
-lai gan čūska redz tikai nelielu apli ap galvu. Spēlētājs izpēta tumšo karti,
-izmanto power-up, lai uz laiku redzētu vairāk, un sacenšas ar citiem globālajā
-rezultātu tabulā.
+**MĒRĶIS** - Iegūt pēc iespējas vairāk punktu ēdot ēdienu un izvairoties no sadursmēm, 
+čūska redz tikai nelielu apli ap galvu. Spēlētājs izpēta tumšo karti,
+izmanto power-up, lai uz laiku redzētu vairāk, un sacenšas ar citiem iekš rezultātu tabulas.
 
-**VADĪBA** - Bultinas = Čūskas virziens, SPACE = jauna spēle pēc Game Over, ESC = Iziet
+**VADĪBA** - Bultiņas = Čūskas virziens, SPACE = jauna spēle pēc Game Over, ESC = Iziet
 Čūska nevar apgriezties par 180° (uzreiz pretējā virzienā).
 
 **PAMATA CIKLS** -
