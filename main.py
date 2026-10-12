@@ -35,7 +35,9 @@ def new_game():
         "dir": (1, 0),
         "food": random_cell(snake),
         "score": 0,
-        "alive": True
+        "alive": True,
+        "start": pygame.time.get_ticks(),
+        "elapsed": 0,
     }
 def visible(cell, head):
     dx = cell[0] - head[0]
@@ -68,6 +70,7 @@ while running:
             elif event.key == pygame.K_SPACE and not game["alive"]:
                 game = new_game()
     if game["alive"]:
+        game["elapsed"] = pygame.time.get_ticks() - game["start"]
         game["progress"] += SPEED
         if game["progress"] >= CELL:
             game["progress"] = 0
@@ -103,6 +106,9 @@ while running:
     x = (WIDTH - score_text.get_width()) // 2
     y = (HUD_HEIGHT - score_text.get_height()) // 2
     screen.blit(score_text, (x, y))
+    seconds = game["elapsed"] // 1000
+    time_text = font.render(f'Time: {seconds // 60:02d}:{seconds % 60:02d}', True, (255, 255, 255))
+    screen.blit(time_text, time_text.get_rect(midright=(WIDTH - 10, HUD_HEIGHT // 2)))
 
     if not game["alive"]:
         msg = font.render("Game over - SPACE lai sāktu no jauna", True, (255, 255, 255))
@@ -111,5 +117,4 @@ while running:
     pygame.display.flip()
     clock.tick(FPS)
 
-pygame.quit()
-                    
+pygame.quit()         
