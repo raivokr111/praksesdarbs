@@ -6,6 +6,8 @@ COLS, ROWS = 32, 24
 WIDTH, HEIGHT = COLS * CELL, ROWS * CELL
 VISION = 4
 FPS = 10
+SNAKE_COLOR = "#50C878"
+FOOD_COLOR = "#DC3C3C"
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -69,9 +71,9 @@ while running:
 
     for cell in game["snake"]:
         if visible(cell, head):
-            draw_cell(cell, (80, 200, 120))
+            draw_cell(cell, SNAKE_COLOR)
     if visible(game["food"], head):
-        draw_cell(game["food"], (220, 60, 60))
+        draw_cell(game["food"], FOOD_COLOR)
 
     screen.blit(font.render(f'Score: {game["score"]}', True, (255, 255, 255)), (10, 10))
 
