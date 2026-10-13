@@ -4,9 +4,10 @@ COLS, ROWS = 32, 24
 VISION = 4
 LIGHT_VISION = 8
 RADAR_VISION = 99
-
-POWERUP_CHANCE = 100
-POWERUP_LIFETIME = 120
+FOOD_COUNT = 2
+POWERUP_CHANCE = 0.8
+POWERUP_RANDOM = 0.01 
+POWERUP_LIFETIME = 60
 POWERUP_STEPS = {
     "light": 90,
     "radar": 25,
@@ -15,7 +16,7 @@ POWERUP_STEPS = {
 }
 
 def occupied(game):
-    cells = list(game["snake"]) + [game['food']]
+    cells = list(game["snake"]) + list(game['food'])
     if game ['powerup']:
         cells.append(game['powerup']['cell'])
     return cells
@@ -29,18 +30,20 @@ def random_cell(exclude):
 
 def new_game():
     snake = [(COLS // 2, ROWS // 2)]
-    return {
+    game = {
         "snake": snake,
         "prev": list(snake),
         "dir": (1, 0),
         "queue": [],
-        "food": random_cell(snake),
+        "food": [],
         "powerup": None,
         "effects": {}, 
         "score": 0,
         "alive": True,
     }
-
+    while len(game['food']) < FOOD_COUNT:
+        game['food'].append(random_cell(occupied(game)))
+    return game
 
 def set_direction(game, direction):
     last = game["queue"][-1] if game["queue"] else game["dir"]
@@ -81,9 +84,10 @@ def step(game):
         return
 
     game["snake"].insert(0, new_head)
-    if new_head == game["food"]:
+    if new_head in game["food"]:
+        game["food"].remove(new_head)
         game["score"] += 2 if "double" in game["effects"] else 1
-        game["food"] = random_cell(occupied(game))
+        game["food"].append(random_cell(occupied(game)))
         if game["powerup"] is None and random.random() < POWERUP_CHANCE:
             spawn_powerup(game)
     else:
@@ -94,6 +98,9 @@ def step(game):
         game["effects"][pu["kind"]] = POWERUP_STEPS[pu["kind"]]
         game["score"] += 1
         game["powerup"] = None
+
+    if game["powerup"] is None and random.random() < POWERUP_RANDOM:
+        spawn_powerup(game)
 
     tick_timers(game)
 

@@ -176,8 +176,9 @@ def main():
             draw_smooth(screen, cell, old, t, SNAKE_COLOR)
 
         radius = vision_radius(game)
-        if visible(game["food"], (hx, hy), radius):
-            draw_cell(screen, game["food"], FOOD_COLOR)
+        for food in game["food"]:
+            if visible(food, (hx, hy), radius):
+                draw_cell(screen, food, FOOD_COLOR)
         pu = game["powerup"]
         if pu and visible(pu["cell"], (hx, hy), radius):
             draw_cell(screen, pu["cell"], POWERUP_INFO[pu["kind"]][1])
