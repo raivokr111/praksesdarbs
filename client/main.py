@@ -21,12 +21,20 @@ TEXT_COLOR = "#E6EDF3"
 HEAD_COLOR = "#C9FFD9"
 TAIL_COLOR = "#1F6B3F"
 EYE_COLOR = "#0B0F14"
+FOOD_SHINE = "#FF9AA2"
 
 POWERUP_INFO = {
     "light": ("Lukturis", "#FFD700"),
     "radar": ("Radars", "#4DA3FF"),
     "slow": ("Lēnums", "#B07CFF"),
     "double": ("Dubultpunkti", "#FF9F43"),
+}
+
+POWERUP_LETTERS = {
+    "light": "L",
+    "radar": "R",
+    "slow": "S",
+    "double": "x2",
 }
 
 DIRECTIONS = {
@@ -72,6 +80,23 @@ def draw_snake(screen, snake, prev, t, direction):
         if i == 0:
             head_pos = pos
     draw_eyes(screen, head_pos[0], head_pos[1], direction)
+
+def cell_center(cell):
+    return cell[0] * CELL + CELL // 2, cell[1] * CELL + HUD_HEIGHT + CELL // 2
+
+# ediens kas pulse
+def draw_food(screen, cell, ticks):
+    cx, cy = cell_center(cell)
+    pygame.draw.circle(screen, FOOD_COLOR, (cx, cy), 8)
+    pygame.draw.circle(screen, FOOD_SHINE, (cx - 3, cy - 3), 2)
+
+# new powerup izskats
+def draw_powerup(screen, tiny_font, cell, kind, ticks):
+    cx, cy = cell_center(cell)
+    color = POWERUP_INFO[kind][1]
+    pygame.draw.circle(screen, color, (cx, cy), 9)
+    text = tiny_font.render(POWERUP_LETTERS[kind], True, BG_COLOR)
+    screen.blit(text, text.get_rect(center=(cx, cy)))
 
 # rezultatu josla
 def draw_hud(screen, font, score, elapsed):
@@ -141,6 +166,7 @@ def main():
     font = pygame.font.SysFont(None, 36)
     small_font = pygame.font.SysFont(None, 24)
     hud_font = pygame.font.SysFont("verdana", 28, bold=True)
+    tiny_font = pygame.font.SysFont(None, 18, bold=True)
 
     player_name = ask_name(screen, font, clock)
     if player_name is None:
@@ -204,12 +230,13 @@ def main():
         draw_snake(screen, snake, prev, t, game["dir"])
 
         radius = vision_radius(game)
+        ticks = pygame.time.get_ticks()
         for food in game["food"]:
             if visible(food, (hx, hy), radius):
-                draw_cell(screen, food, FOOD_COLOR)
+                draw_food(screen, food, ticks)
         pu = game["powerup"]
         if pu and visible(pu["cell"], (hx, hy), radius):
-            draw_cell(screen, pu["cell"], POWERUP_INFO[pu["kind"]][1])
+            draw_powerup(screen, tiny_font, pu["cell"], pu["kind"], ticks)
 
         pygame.draw.rect(screen, BORDER_COLOR, (0, HUD_HEIGHT, WIDTH, ROWS * CELL), 3)
         draw_hud(screen, hud_font, game["score"], elapsed)
