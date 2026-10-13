@@ -33,6 +33,7 @@ def new_game():
         "snake": snake,
         "prev": list(snake),
         "dir": (1, 0),
+        "queue": [],
         "food": random_cell(snake),
         "powerup": None,
         "effects": {}, 
@@ -42,8 +43,13 @@ def new_game():
 
 
 def set_direction(game, direction):
-    if direction[0] + game["dir"][0] != 0 or direction[1] + game["dir"][1] != 0:
-        game["dir"] = direction
+    last = game["queue"][-1] if game["queue"] else game["dir"]
+    if direction == last:
+        return
+    if direction[0] + last[0] == 0 and direction[1] + last[1] == 0:
+        return
+    if len(game["queue"]) < 2:
+        game["queue"].append(direction)
 
 def spawn_powerup(game):
     game ["powerup"] = {
@@ -64,6 +70,8 @@ def tick_timers(game):
 
 
 def step(game):
+    if game["queue"]:
+        game["dir"] = game["queue"].pop(0)
     game["prev"] = list(game["snake"])
     head = game["snake"][0]
     new_head = (head[0] + game["dir"][0], head[1] + game["dir"][1])
