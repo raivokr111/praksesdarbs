@@ -24,7 +24,6 @@ DIRECTIONS = {
     pygame.K_RIGHT: (1, 0),
 }
 
-
 def draw_cell(screen, cell, color):
     rect = (cell[0] * CELL, cell[1] * CELL + HUD_HEIGHT, CELL - 1, CELL - 1)
     pygame.draw.rect(screen, color, rect)
@@ -44,14 +43,40 @@ def draw_hud(screen, font, score, elapsed):
     time_text = font.render(f"Time: {seconds // 60:02d}:{seconds % 60:02d}", True, TEXT_COLOR)
     screen.blit(time_text, time_text.get_rect(midright=(WIDTH - 10, HUD_HEIGHT // 2)))
 
+def ask_name(screen, font, clock):
+    name = ""
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN and name:
+                    return name
+                if event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                elif len(name) < 20 and event.unicode.isprintable():
+                    name += event.unicode
+
+        screen.fill(BG_COLOR)
+        prompt = font.render("Ievadi vārdu un spied ENTER", True, TEXT_COLOR)
+        typed = font.render(name + "_", True, SNAKE_COLOR)
+        screen.blit(prompt, prompt.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 30)))
+        screen.blit(typed, typed.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 20)))
+        pygame.display.flip()
+        clock.tick(30)
+
 
 def main():
-    player_name = input("Ievadi vārdu: ").strip()[:20] or "Anonīms"
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Blind Snake")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 36)
+    
+    player_name = ask_name(screen, font, clock)
+    if player_name is None:
+        pygame.quit()
+        return
 
     game = new_game()
     progress = 0
