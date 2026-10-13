@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind Snake</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <h1>Blind Snake</h1>
+  <div class="teksts"><p>Rezultātu tabula</p></div>
+<table>
+  <thead>
+    <tr>
+      <th>Vieta</th>
+      <th>Spēlētājs</th>
+      <th>Rezultāts</th>
+      <th>Laiks</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in scores %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ row.name }}</td>
+      <td>{{ row.score }}</td>
+      <td>{{ row.time }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+</body>
+</html>
