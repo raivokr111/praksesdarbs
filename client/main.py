@@ -1,7 +1,9 @@
 import pygame
 
 from client.api_client import submit_score
-from game.rules import COLS, ROWS, new_game, set_direction, step, visible
+from game.rules import (
+    COLS, ROWS, new_game, set_direction, speed_factor, step, vision_radius, visible,
+)
 
 CELL = 20
 HUD_HEIGHT = 40
@@ -16,6 +18,12 @@ BG_COLOR = "#0B0F14"
 HUD_COLOR = "#2D333B"
 BORDER_COLOR = "#6E7681"
 TEXT_COLOR = "#E6EDF3"
+POWERUP_INFO = {
+    "light": ("Lukturis", "#FFD700"),
+    "radar": ("Radars", "#4DA3FF"),
+    "slow": ("Slowness", "#B07CFF"),
+    "double": ("Dubultpunkti", "#FF9F43"),
+}
 
 DIRECTIONS = {
     pygame.K_UP: (0, -1),
@@ -42,6 +50,15 @@ def draw_hud(screen, font, score, elapsed):
     seconds = elapsed // 1000
     time_text = font.render(f"Time: {seconds // 60:02d}:{seconds % 60:02d}", True, TEXT_COLOR)
     screen.blit(time_text, time_text.get_rect(midright=(WIDTH - 10, HUD_HEIGHT // 2)))
+
+def draw_effects(screen, small_font, effects):
+    x = 10
+    for kind, steps_left in effects.items():
+        name, color = POWERUP_INFO[kind]
+        seconds = steps_left * CELL / (SPEED * FPS)
+        text = small_font.render(f"{name} {seconds:.0f}s", True, color)
+        screen.blit(text, (x, HUD_HEIGHT + 8))
+        x += text.get_width() + 16
 
 def ask_name(screen, font, clock):
     name = ""
@@ -72,6 +89,7 @@ def main():
     pygame.display.set_caption("Blind Snake")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 36)
+    small_font = pygame.font.SysFont(None, 24)
     
     player_name = ask_name(screen, font, clock)
     if player_name is None:
@@ -99,7 +117,7 @@ def main():
 
         if game["alive"]:
             elapsed = pygame.time.get_ticks() - start
-            progress += SPEED
+            progress += SPEED * speed_factor(game)
             if progress >= CELL:
                 progress = 0
                 step(game)
@@ -118,11 +136,16 @@ def main():
         for i, cell in enumerate(snake):
             old = prev[i] if i < len(prev) else prev[-1]
             draw_smooth(screen, cell, old, t, SNAKE_COLOR)
-        if visible(game["food"], (hx, hy)):
+        radius = vision_radius(game)
+        if visible(game["food"], (hx, hy), radius):
             draw_cell(screen, game["food"], FOOD_COLOR)
+        pu = game["powerup"]
+        if pu and visible(pu["cell"], (hx, hy), radius):
+            draw_cell(screen, pu["cell"], POWERUP_INFO[pu["kind"]][1])
 
         pygame.draw.rect(screen, BORDER_COLOR, (0, HUD_HEIGHT, WIDTH, ROWS * CELL), 3)
         draw_hud(screen, font, game["score"], elapsed)
+        draw_effects(screen, small_font, game["effects"])
 
         if not game["alive"]:
             msg = font.render("Game over - SPACE lai sāktu no jauna", True, TEXT_COLOR)

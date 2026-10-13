@@ -2,7 +2,23 @@ import random
 
 COLS, ROWS = 32, 24
 VISION = 4
+LIGHT_VISION = 8
+RADAR_VISION = 99
 
+POWERUP_CHANCE = 1
+POWERUP_LIFETIME = 120
+POWERUP_STEPS = {
+    "light": 90,
+    "radar": 25,
+    "slow": 70,
+    "double": 90,
+}
+
+def occupied(game):
+    cells = list(game["snake"]) + [game['food']]
+    if game ['powerup']:
+        cells.append(game['powerup']['cell'])
+    return cells
 
 def random_cell(exclude):
     while True:
@@ -18,6 +34,8 @@ def new_game():
         "prev": list(snake),
         "dir": (1, 0),
         "food": random_cell(snake),
+        "powerup": None,
+        "effects": {}, 
         "score": 0,
         "alive": True,
     }
@@ -26,6 +44,23 @@ def new_game():
 def set_direction(game, direction):
     if direction[0] + game["dir"][0] != 0 or direction[1] + game["dir"][1] != 0:
         game["dir"] = direction
+
+def spawn_powerup(game):
+    game ["powerup"] = {
+        "kind": random.choice(list(POWERUP_STEPS)),
+        "cell": random_cell(occupied(game)),
+        "ttl": POWERUP_LIFETIME,
+    }
+
+def tick_timers(game):
+    for kind in list(game["effects"]):
+        game["effects"][kind] -= 1
+        if game["effects"][kind] <= 0:
+            del game["effects"][kind]
+    if game ["powerup"]:
+        game["powerup"]["ttl"] -= 1
+        if game["powerup"]["ttl"] <= 0:
+            game["powerup"] = None
 
 
 def step(game):
@@ -36,13 +71,33 @@ def step(game):
     if hit_wall or new_head in game["snake"]:
         game["alive"] = False
         return
+
     game["snake"].insert(0, new_head)
     if new_head == game["food"]:
-        game["score"] += 1
-        game["food"] = random_cell(game["snake"])
+        game["score"] += 2 if "double" in game["effects"] else 1
+        game["food"] = random_cell(occupied(game))
+        if game["powerup"] is None and random.random() < POWERUP_CHANCE:
+            spawn_powerup(game)
     else:
         game["snake"].pop()
 
+    pu = game["powerup"]
+    if pu and pu["cell"] == new_head:
+        game["effects"][pu["kind"]] = POWERUP_STEPS[pu["kind"]]
+        game["score"] += 1
+        game["powerup"] = None
+
+    tick_timers(game)
+
+def vision_radius(game):
+    if "radar" in game["effects"]:
+        return RADAR_VISION
+    elif "light" in game["effects"]:
+        return LIGHT_VISION
+    return VISION
+
+def speed_factor(game):
+    return 0.5 if "slow" in game["effects"] else 1.0
 
 def visible(cell, head, radius=VISION):
     dx = cell[0] - head[0]
