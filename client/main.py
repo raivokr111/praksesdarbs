@@ -18,6 +18,9 @@ BG_COLOR = "#0B0F14"
 HUD_COLOR = "#2D333B"
 BORDER_COLOR = "#6E7681"
 TEXT_COLOR = "#E6EDF3"
+HEAD_COLOR = "#C9FFD9"
+TAIL_COLOR = "#1F6B3F"
+EYE_COLOR = "#0B0F14"
 
 POWERUP_INFO = {
     "light": ("Lukturis", "#FFD700"),
@@ -42,7 +45,33 @@ def draw_cell(screen, cell, color):
 def draw_smooth(screen, cur, prev, t, color):
     x = (prev[0] + (cur[0] - prev[0]) * t) * CELL
     y = (prev[1] + (cur[1] - prev[1]) * t) * CELL + HUD_HEIGHT
-    pygame.draw.rect(screen, color, (x, y, CELL - 1, CELL - 1))
+    pygame.draw.rect(screen, color, (x, y, CELL - 1, CELL - 1), border_radius=6)
+    return x, y
+
+# cuskas izskats
+def draw_eyes(screen, x, y, direction):
+    cx = x + (CELL - 1) / 2
+    cy = y + (CELL - 1) / 2
+    dx, dy = direction
+    px, py = -dy, dx
+    for side in (1, -1):
+        ex = cx + dx * 4 + px * 4 * side
+        ey = cy + dy * 4 + py * 4 * side
+        pygame.draw.circle(screen, EYE_COLOR, (ex, ey), 3)
+
+def draw_snake(screen, snake, prev, t, direction):
+    count = len(snake)
+    head_pos = None
+    for i in range(count - 1, -1, -1):
+        old = prev[i] if i < len(prev) else prev[-1]
+        if i == 0:
+            color = HEAD_COLOR
+        else:
+            color = pygame.Color(SNAKE_COLOR).lerp(TAIL_COLOR, i / max(count - 1, 1))
+        pos = draw_smooth(screen, snake[i], old, t, color)
+        if i == 0:
+            head_pos = pos
+    draw_eyes(screen, head_pos[0], head_pos[1], direction)
 
 # rezultatu josla
 def draw_hud(screen, font, score, elapsed):
@@ -111,6 +140,7 @@ def main():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 36)
     small_font = pygame.font.SysFont(None, 24)
+    hud_font = pygame.font.SysFont("verdana", 28, bold=True)
 
     player_name = ask_name(screen, font, clock)
     if player_name is None:
@@ -171,9 +201,7 @@ def main():
         hx = prev[0][0] + (snake[0][0] - prev[0][0]) * t
         hy = prev[0][1] + (snake[0][1] - prev[0][1]) * t
 
-        for i, cell in enumerate(snake):
-            old = prev[i] if i < len(prev) else prev[-1]
-            draw_smooth(screen, cell, old, t, SNAKE_COLOR)
+        draw_snake(screen, snake, prev, t, game["dir"])
 
         radius = vision_radius(game)
         for food in game["food"]:
@@ -184,7 +212,7 @@ def main():
             draw_cell(screen, pu["cell"], POWERUP_INFO[pu["kind"]][1])
 
         pygame.draw.rect(screen, BORDER_COLOR, (0, HUD_HEIGHT, WIDTH, ROWS * CELL), 3)
-        draw_hud(screen, font, game["score"], elapsed)
+        draw_hud(screen, hud_font, game["score"], elapsed)
         draw_effects(screen, small_font, game["effects"])
 
         if not game["alive"]:
