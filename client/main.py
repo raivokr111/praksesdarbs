@@ -18,10 +18,11 @@ BG_COLOR = "#0B0F14"
 HUD_COLOR = "#2D333B"
 BORDER_COLOR = "#6E7681"
 TEXT_COLOR = "#E6EDF3"
+
 POWERUP_INFO = {
     "light": ("Lukturis", "#FFD700"),
     "radar": ("Radars", "#4DA3FF"),
-    "slow": ("Slowness", "#B07CFF"),
+    "slow": ("Lēnums", "#B07CFF"),
     "double": ("Dubultpunkti", "#FF9F43"),
 }
 
@@ -31,6 +32,7 @@ DIRECTIONS = {
     pygame.K_LEFT: (-1, 0),
     pygame.K_RIGHT: (1, 0),
 }
+
 
 def draw_cell(screen, cell, color):
     rect = (cell[0] * CELL, cell[1] * CELL + HUD_HEIGHT, CELL - 1, CELL - 1)
@@ -51,6 +53,7 @@ def draw_hud(screen, font, score, elapsed):
     time_text = font.render(f"Time: {seconds // 60:02d}:{seconds % 60:02d}", True, TEXT_COLOR)
     screen.blit(time_text, time_text.get_rect(midright=(WIDTH - 10, HUD_HEIGHT // 2)))
 
+
 def draw_effects(screen, small_font, effects):
     x = 10
     for kind, steps_left in effects.items():
@@ -59,6 +62,24 @@ def draw_effects(screen, small_font, effects):
         text = small_font.render(f"{name} {seconds:.0f}s", True, color)
         screen.blit(text, (x, HUD_HEIGHT + 8))
         x += text.get_width() + 16
+
+
+def draw_pause(screen, font):
+    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    overlay.fill((11, 15, 20, 230))
+    screen.blit(overlay, (0, 0))
+    lines = [
+        ("Pauze", SNAKE_COLOR),
+        ("ESC - turpināt", TEXT_COLOR),
+        ("R - sākt no jauna", TEXT_COLOR),
+        ("Q - iziet", TEXT_COLOR),
+    ]
+    y = HEIGHT // 2 - 70
+    for text, color in lines:
+        img = font.render(text, True, color)
+        screen.blit(img, img.get_rect(center=(WIDTH // 2, y)))
+        y += 45
+
 
 def ask_name(screen, font, clock):
     name = ""
@@ -90,7 +111,7 @@ def main():
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 36)
     small_font = pygame.font.SysFont(None, 24)
-    
+
     player_name = ask_name(screen, font, clock)
     if player_name is None:
         pygame.quit()
@@ -101,6 +122,8 @@ def main():
     start = pygame.time.get_ticks()
     elapsed = 0
     sent = False
+    paused = False
+    pause_start = 0
     running = True
 
     while running:
@@ -108,20 +131,35 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key in DIRECTIONS:
+                now = pygame.time.get_ticks()
+                if event.key == pygame.K_ESCAPE and game["alive"]:
+                    paused = not paused
+                    if paused:
+                        pause_start = now
+                    else:
+                        start += now - pause_start
+                elif paused:
+                    if event.key == pygame.K_r:
+                        game = new_game()
+                        progress, elapsed, sent = 0, 0, False
+                        start = now
+                        paused = False
+                    elif event.key == pygame.K_q:
+                        running = False
+                elif event.key in DIRECTIONS:
                     set_direction(game, DIRECTIONS[event.key])
                 elif event.key == pygame.K_SPACE and not game["alive"]:
                     game = new_game()
                     progress, elapsed, sent = 0, 0, False
-                    start = pygame.time.get_ticks()
+                    start = now
 
-        if game["alive"]:
+        if game["alive"] and not paused:
             elapsed = pygame.time.get_ticks() - start
             progress += SPEED * speed_factor(game)
             if progress >= CELL:
                 progress = 0
                 step(game)
-        elif not sent:
+        elif not game["alive"] and not sent:
             sent = True
             submit_score(player_name, game["score"], elapsed // 1000)
 
@@ -136,6 +174,7 @@ def main():
         for i, cell in enumerate(snake):
             old = prev[i] if i < len(prev) else prev[-1]
             draw_smooth(screen, cell, old, t, SNAKE_COLOR)
+
         radius = vision_radius(game)
         if visible(game["food"], (hx, hy), radius):
             draw_cell(screen, game["food"], FOOD_COLOR)
@@ -150,6 +189,9 @@ def main():
         if not game["alive"]:
             msg = font.render("Game over - SPACE lai sāktu no jauna", True, TEXT_COLOR)
             screen.blit(msg, msg.get_rect(center=(WIDTH // 2, HEIGHT // 2 + HUD_HEIGHT // 2)))
+
+        if paused:
+            draw_pause(screen, font)
 
         pygame.display.flip()
         clock.tick(FPS)
