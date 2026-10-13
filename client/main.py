@@ -44,7 +44,7 @@ def draw_smooth(screen, cur, prev, t, color):
     y = (prev[1] + (cur[1] - prev[1]) * t) * CELL + HUD_HEIGHT
     pygame.draw.rect(screen, color, (x, y, CELL - 1, CELL - 1))
 
-
+# rezultatu josla
 def draw_hud(screen, font, score, elapsed):
     pygame.draw.rect(screen, HUD_COLOR, (0, 0, WIDTH, HUD_HEIGHT))
     score_text = font.render(f"Score: {score}", True, TEXT_COLOR)
@@ -53,7 +53,7 @@ def draw_hud(screen, font, score, elapsed):
     time_text = font.render(f"Time: {seconds // 60:02d}:{seconds % 60:02d}", True, TEXT_COLOR)
     screen.blit(time_text, time_text.get_rect(midright=(WIDTH - 10, HUD_HEIGHT // 2)))
 
-
+# effektu josla
 def draw_effects(screen, small_font, effects):
     x = 10
     for kind, steps_left in effects.items():
@@ -63,7 +63,7 @@ def draw_effects(screen, small_font, effects):
         screen.blit(text, (x, HUD_HEIGHT + 8))
         x += text.get_width() + 16
 
-
+# pauzes ekrans
 def draw_pause(screen, font):
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
     overlay.fill((11, 15, 20, 230))
@@ -80,7 +80,7 @@ def draw_pause(screen, font):
         screen.blit(img, img.get_rect(center=(WIDTH // 2, y)))
         y += 45
 
-
+# name input ekrans
 def ask_name(screen, font, clock):
     name = ""
     while True:
@@ -103,7 +103,7 @@ def ask_name(screen, font, clock):
         pygame.display.flip()
         clock.tick(30)
 
-
+# main game loop
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
