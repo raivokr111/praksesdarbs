@@ -32,3 +32,23 @@ h1 {
     font-size: 24px;
     color: #6feb98;
 }
+button {
+    background: #6feb98;
+    color: #0b0b14;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: sans-serif;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+button:hover {
+    background: #0ed35094;
+}
+
+button:active {
+    transform: scale(0.96);
+}

@@ -9,27 +9,62 @@
 <body>
   <div class="wrap">
     <h1>Blind Snake</h1>
-  <div class="teksts"><p>Rezultātu tabula</p></div>
-<table>
-  <thead>
-    <tr>
-      <th>Vieta</th>
-      <th>Spēlētājs</th>
-      <th>Rezultāts</th>
-      <th>Laiks</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for row in scores %}
-    <tr>
-      <td>{{ loop.index }}</td>
-      <td>{{ row.name }}</td>
-      <td>{{ row.score }}</td>
-      <td>{{ row.time }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-</div>
+
+    <div id="leaderboard">
+      <button onclick="showRules()">Rules</button>
+
+      <div class="teksts"><p>Rezultātu tabula</p></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Vieta</th>
+            <th>Spēlētājs</th>
+            <th>Rezultāts</th>
+            <th>Laiks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in scores %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.score }}</td>
+            <td>{{ row.time }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div id="rules" hidden>
+      <button onclick="showLeaderboard()">Leaderboard</button>
+
+      <div class="teksts"><p>Noteikumi</p></div>
+      <ul>
+        <li>Čūska redz tikai 4 lauciņu rādiusā ap savu galvu.</li>
+        <li>Ēdiens ir paslēpts, tas jāatrod, izpētot laukumu.</li>
+        <li>Apēdot ēdienu, čūska kļūst garāka un tu saņem punktus.</li>
+        <li>Spēle beidzas, ja čūska ietriecas sienā vai savā astē.</li>
+        <li>Mērķis ir savākt pēc iespējas vairāk punktus, pēc iespējas ātrāk.</li>
+        <div class="teksts"><p>Powerups/Nerf</p></div>
+        <li>Flashlight (F) palielina redzamības rādiusu.</li>
+        <li>Radar (R) parāda, kur atrodas ēdiens.</li>
+        <li>Slowness (S) palēnina čūskas kustību.</li>
+        <li>Dubultpunkti (x2) palielina katru apēsto ēdienu vērtību pa 2.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function showRules() {
+      document.getElementById("leaderboard").hidden = true;
+      document.getElementById("rules").hidden = false;
+    }
+
+    function showLeaderboard() {
+      document.getElementById("rules").hidden = true;
+      document.getElementById("leaderboard").hidden = false;
+    }
+  </script>
 </body>
 </html>
